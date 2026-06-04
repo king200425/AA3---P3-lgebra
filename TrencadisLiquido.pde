@@ -1,12 +1,16 @@
-boolean mode3D = false; // Interruptor modo 3D
-boolean enableLUT = false; // Interruptor efecto LUT
-float time = 0; // Variable de tiempo para animar las olas
+boolean mode3D = false; //Interruptor modo 3D
+boolean enableLUT = false; //Interruptor efecto LUT
+boolean showUI = true; //Interruptor para mostrar/ocultar UI
+float time = 0; //Variable de tiempo para animar las olas
 
-int tileSize = 20; // Tamaño de cada mosaico 
+int tileSize = 20;
 int cols, rows;
 Tile[] tiles; 
 
-PImage lutTexture; //Textura externa para el LUT
+PImage lutTexture;
+
+// Lista dinámica para almacenar múltiples ondas
+ArrayList<Wave> waves = new ArrayList<Wave>();
 
 void setup() {
   size(1024, 768, P3D); 
@@ -33,13 +37,21 @@ void setup() {
 }
 
 void draw() {
-  background(10, 20, 35); 
+  //Blanco
+  background(255, 255, 255); 
   
-  ambientLight(80, 120, 180);
-  lightSpecular(255, 255, 255);
-  directionalLight(150, 150, 150, 0.5, 0.5, -1); 
+  ambientLight(100, 100, 110); 
+  lightSpecular(150, 150, 150); 
+  directionalLight(110, 110, 110, 0.3, 0.8, -1); 
   
   time += 0.08; 
+  
+  for (int i = waves.size() - 1; i >= 0; i--) {
+    Wave w = waves.get(i);
+    if (time - w.birthTime > w.maxAge) {
+      waves.remove(i); 
+    }
+  }
   
   if (mode3D) {
     pushMatrix();
@@ -62,4 +74,9 @@ void renderTiles() {
     tiles[i].update();
     tiles[i].display();
   }
+}
+
+// Añadir una nueva ola independiente al hacer clic
+void mousePressed() {
+  waves.add(new Wave(mouseX - width/2, mouseY - height/2, time));
 }
